@@ -9,3 +9,5 @@
 ## Model used - SVC
 
 ## Accuracy - 88%
+
+# WORK IN PROGRESS - Making the model production ready
