@@ -15,7 +15,6 @@ def clean_data(df: pd.DataFrame) -> (
         Annotated[np.ndarray, "y_test"],
     ]
 ):
-    
     """Cleans data and returns test datasets and train datasets
 
     Raises:
@@ -26,9 +25,9 @@ def clean_data(df: pd.DataFrame) -> (
         np.ndarray: y_train 
         np.ndarray: x_test 
         np.ndarray: y_test 
-
+        
     """
-    
+
     try:
         process_strategy = DataPreprocessStrategy()
         data_cleaning = DataCleaning(df, process_strategy)

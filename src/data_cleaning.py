@@ -47,6 +47,7 @@ class DataPreprocessStrategy(DataStrategy):
             nlp = spacy.load("en_core_web_lg")
             df["processed_text"] = df.text.apply(preprocess, nlp=nlp)
             df["vector"] = df["processed_text"].apply(lambda x: nlp(x).vector)
+            return df
 
         except Exception as e:
             logging.error(f"Error in Preprocessing Data: {e}")
