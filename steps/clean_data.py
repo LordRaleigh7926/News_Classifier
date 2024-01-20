@@ -1,30 +1,10 @@
 import logging
 import pandas as pd
 from zenml import step
-import spacy
 import numpy as np
 from typing_extensions import Annotated
 from typing import Tuple
-
-from sklearn.model_selection import train_test_split
-from imblearn.over_sampling import SMOTE
-from sklearn.preprocessing import StandardScaler
-
-def preprocess(text,nlp):
-
-    
-
-    doc = nlp(text)
-
-    li = []
-
-    for token in doc:
-        if token.is_stop or token.is_punct:
-            continue
-
-        li.append(token.lemma_)
-
-    return " ".join(li)
+from src.data_cleaning import DataCleaning, DataDivideStrategy, DataPreprocessStrategy
 
 @step
 def clean_data(df: pd.DataFrame) -> (
@@ -35,30 +15,31 @@ def clean_data(df: pd.DataFrame) -> (
         Annotated[np.ndarray, "y_test"],
     ]
 ):
+    
+    """Cleans data and returns test datasets and train datasets
 
-    law = {"SCIENCE": 0, "BUSINESS": 1, "CRIME": 2, "SPORTS": 3}
-    for i, k in enumerate(df.category):
-        df.category.values[i] = law.get(k)
-    nlp = spacy.load("en_core_web_lg")
-    df["processed_text"] = df.text.apply(preprocess, nlp=nlp)
-    df["vector"] = df["processed_text"].apply(lambda x: nlp(x).vector)
-    x_train, x_test, y_train, y_test = train_test_split(
-        df.vector.values,
-        df.category.values,
-        test_size=0.2,
-        random_state=2023,
-        stratify=df.category.values,
-    )
-    x_test = np.stack(x_test)
-    x_train = np.stack(x_train)
-    y_train = np.stack(y_train)
-    y_test = np.stack(y_test)
+    Raises:
+        e: Raises error if there is any problem in cleanin
 
-    scaler = StandardScaler()
-    x_train = scaler.fit_transform(x_train)
-    x_test = scaler.fit_transform(x_test)
+    Returns:
+        np.ndarray: x_train
+        np.ndarray: y_train 
+        np.ndarray: x_test 
+        np.ndarray: y_test 
 
-    smt = SMOTE(random_state=70)
-    x_train, y_train = smt.fit_resample(x_train, y_train)
+    """
+    
+    try:
+        process_strategy = DataPreprocessStrategy()
+        data_cleaning = DataCleaning(df, process_strategy)
+        processed_data = data_cleaning.process_data()
 
-    return x_train, y_train, x_test, y_test
+        divide_strategy = DataDivideStrategy()
+        division_of_data = DataCleaning(processed_data, divide_strategy)
+        x_train, y_train, x_test, y_test = division_of_data.process_data()
+        logging.info("Data Cleaned")
+        return x_train, y_train, x_test, y_test
+    
+    except Exception as e:
+        logging.error(f"Error in Cleaning Data: {e}")
+        raise e
