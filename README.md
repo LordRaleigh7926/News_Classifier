@@ -6,8 +6,6 @@
 <li> Sports
 <li> Business
 
-## Model used - SVC
+### Model used - SVC
 
-## Accuracy - 88%
-
-# WORK IN PROGRESS - Making the model production ready
+### Accuracy - 88%
